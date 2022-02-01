@@ -6,6 +6,7 @@
  */
 plugins {
     id 'groovy'
+    id "org.sonarqube" version "3.3"
 }
 
 sourceSets {
