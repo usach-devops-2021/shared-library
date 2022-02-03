@@ -6,34 +6,49 @@ def call(){
           NEXUS_PASSWORD     = credentials('nexus_password')
           SLACK_TOKEN        = credentials('slack_token')
         }
-        parameters {
-            choice(
-                name:'compileTool',
-                choices: ['Maven', 'Gradle'],
-                description: 'Seleccione herramienta de compilacion'
-            )
-            string(
-                name:'stages',
-                description: 'Ingrese los stages para ejecutar',
-                trim: true
+
+        triggers {
+            GenericTrigger(
+                genericVariables: [
+                [key: 'ref', value: '$.ref']
+                ],
+                genericRequestVariables: [
+                    [key: 'stages', regexpFilter: '']
+                ],
+                    causeString: 'Iniciado en $env.GIT_BRANCH',
+                token: 'laboratorio-mod3',
+                tokenCredentialId: '',
+                printContributedVariables: true,
+                printPostContent: true,
+                silentResponse: false,
+                regexpFilterText: '$ref',
+                regexpFilterExpression: 'refs/heads/' + BRANCH_NAME
             )
         }
+
         stages {
             stage("Pipeline"){
                 steps {
                     script{
                     env.STAGE  = env.STAGE_NAME
-                    print 'Compile Tool: ' + params.compileTool;
-                    switch(params.compileTool)
-                        {
-                            case 'Maven':
-                                figlet  "Maven"
-                                maven.call(params.stages)
-                            break;
-                            case 'Gradle':
-                                figlet  "Gradle"
-                                gradle.call(params.stages)
-                            break;
+                    //print 'Compile Tool: ' + params.compileTool;
+                        if (fileExists('build.gradle')) {
+                            sh "echo 'App Gradle'"
+                            //gradle.call(env.stages, env.compileTool)
+                        } else if(fileExists('pom.xml'))  {
+                            sh "echo 'App Maven'"
+                            //maven.call(env.stages, env.compileTool)
+                        } else {
+                            sh "echo 'App sin identificar'"
+                            exit 0
+                        }
+
+                        def branch = env.GIT_BRANCH;
+
+                        if (branch.startsWith('feature-') || branch == 'develop') {
+                            ci.call(env.stages, env.compileTool)
+                        } else if (branch.startWith('release-v')) {
+                            cd.call(env.stages, env.compileTool)
                         }
                     }
                 }
