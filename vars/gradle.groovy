@@ -7,7 +7,7 @@ def call(stages){
         'curl_spring': 'sCurlSpring',
         'upload_nexus': 'sUploadNexus',
         'dowload_nexus': 'sDownloadNexus',
-        'upload_artifact': 'sUploadArtifact',
+        'run_artifact': 'sRunArtifact',
         'test_artifact': 'sTestArtifact'
     ]
     def arrayUtils = new array.arrayExtentions();
@@ -31,20 +31,18 @@ def allStages(){
     sSonar()
     sCurlSpring()
     sDownloadNexus()
-    sUploadArtifact()
+    sRunArtifact()
     sTestArtifact()
 }
 
 def sBuild(){
-    stage("Paso 1: Build and Test"){
-        env.STAGE = env.STAGE_NAME
+    stage("Gradle: Build and Test"){
         sh "gradle clean build"
     }
 }
 
 def sSonar(){
-    stage("Paso 2: Sonar - Análisis Estático"){
-        env.STAGE = env.STAGE_NAME
+    stage("Gradle: Sonar - Análisis Estático"){
         sh "echo 'Análisis Estático!'"
         withSonarQubeEnv('sonarqube') {
             sh 'chmod +x gradlew && ./gradlew sonarqube -Dsonar.projectKey=ejemplo-gradle -Dsonar.java.binaries=build'
@@ -53,16 +51,14 @@ def sSonar(){
 }
 
 def sCurlSpring(){
-    stage("Paso 3: Curl Springboot Gradle sleep 60"){
-        env.STAGE = env.STAGE_NAME
+    stage("Gradle: Curl Springboot Gradle sleep 60"){
         sh "gradle bootRun&"
         sh "sleep 60 && curl -X GET 'http://localhost:8081/rest/mscovid/test?msg=testing'"
     }
 }
 
 def sUploadNexus(){
-    stage("Paso 4: Subir Nexus"){
-        env.STAGE = env.STAGE_NAME
+    stage("Gradle: Subir Nexus"){
         nexusPublisher nexusInstanceId: 'nexus',
         nexusRepositoryId: 'devops-usach-nexus',
         packages: [
@@ -85,22 +81,19 @@ def sUploadNexus(){
 }
 
 def sDownloadNexus(){
-    stage("Paso 5: Descargar Nexus"){
-        env.STAGE = env.STAGE_NAME
+    stage("Gradle: Descargar Nexus"){
         sh ' curl -X GET -u $NEXUS_USER:$NEXUS_PASSWORD "http://nexus:8081/repository/devops-usach-nexus/com/devopsusach2020/DevOpsUsach2020/0.0.1/DevOpsUsach2020-0.0.1.jar" -O'
     }
 }
 
-def sUploadArtifact(){
-    stage("Paso 6: Levantar Artefacto Jar"){
-        env.STAGE = env.STAGE_NAME
+def sRunArtifact(){
+    stage("Gradle: Levantar Artefacto Jar"){
         sh 'nohup bash java -jar DevOpsUsach2020-0.0.1.jar & >/dev/null'
     }
 }
 
 def sTestArtifact(){
-    stage("Paso 7: Testear Artefacto - Dormir(Esperar 60sg)"){
-        env.STAGE = env.STAGE_NAME
+    stage("Gradle: Testear Artefacto - Dormir(Esperar 60sg)"){
         sh "sleep 60 && curl -X GET 'http://localhost:8081/rest/mscovid/test?msg=testing'"
     }
 }
