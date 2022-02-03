@@ -6,10 +6,11 @@ def call(stages){
         'test': 'sTest',
         'build': 'sBuild',
         'sonar': 'sSonar',
+        'run': 'sRun'
         'curl_spring': 'sCurlSpring',
         'upload_nexus': 'sUploadNexus',
         'dowload_nexus': 'sDownloadNexus',
-        'upload_artifact': 'sUploadArtifact',
+        'run_artifact': 'sRunArtifact',
         'test_artifact': 'sTestArtifact'
     ]
     def arrayUtils = new array.arrayExtentions();
@@ -35,34 +36,30 @@ def allStages(){
     sSonar()
     sCurlSpring()
     sDownloadNexus()
-    sUploadArtifact()
+    sRunArtifact()
     sTestArtifact()
 }
 
 def sCompile(){
-    stage("Paso 1: Compile"){
-        env.STAGE = env.STAGE_NAME
+    stage("Maven: Compile"){
         sh "mvn clean compile -e"
     }
 }
 
 def sTest(){
-    stage("Paso 2: Test"){
-        env.STAGE = env.STAGE_NAME
+    stage("Maven: Test"){
         sh "mvn clean test -e"
     }
 }
 
 def sBuild(){
-    stage("Paso 3: Build"){
-        env.STAGE = env.STAGE_NAME
+    stage("Maven: Build"){
         sh "mvn clean test -e"
     }
 }
 
 def sSonar(){
-    stage("Paso 4: Sonar - Análisis Estático"){
-        env.STAGE = env.STAGE_NAME
+    stage("Maven: Sonar - Análisis Estático"){
         sh "echo 'Análisis Estático!'"
         withSonarQubeEnv('sonarqube') {
             sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=ejemplo-gradle -Dsonar.java.binaries=build'
@@ -71,16 +68,14 @@ def sSonar(){
 }
 
 def sCurlSpring(){
-    stage("Paso 5: Curl Springboot Maven sleep 60"){
-        env.STAGE = env.STAGE_NAME
+    stage("Maven: Curl Springboot Maven sleep 60"){
         sh "mvn spring-boot:run &"
         sh "sleep 60 && curl -X GET 'http://localhost:8081/rest/mscovid/test?msg=testing'"
     }
 }
 
 def sUploadNexus(){
-    stage("Paso 6: Subir Nexus"){
-        env.STAGE = env.STAGE_NAME
+    stage("Maven: Subir Nexus"){
         nexusPublisher nexusInstanceId: 'nexus',
         nexusRepositoryId: 'devops-usach-nexus',
         packages: [
@@ -103,22 +98,19 @@ def sUploadNexus(){
 }
 
 def sDownloadNexus(){
-    stage("Paso 7: Descargar Nexus"){
-        env.STAGE = env.STAGE_NAME
+    stage("Maven: Descargar Nexus"){
         sh ' curl -X GET -u $NEXUS_USER:$NEXUS_PASSWORD "http://nexus:8081/repository/devops-usach-nexus/com/devopsusach2020/DevOpsUsach2020/0.0.1/DevOpsUsach2020-0.0.1.jar" -O'
     }
 }
 
-def sUploadArtifact(){
-    stage("Paso 8: Levantar Artefacto Jar"){
-        env.STAGE = env.STAGE_NAME
+def sRunArtifact(){
+    stage("Maven: Levantar Artefacto Jar"){
         sh 'nohup bash java -jar DevOpsUsach2020-0.0.1.jar & >/dev/null'
     }
 }
 
 def sTestArtifact(){
-    stage("Paso 9: Testear Artefacto - Dormir(Esperar 60sg)"){
-        env.STAGE = env.STAGE_NAME
+    stage("Maven: Testear Artefacto - Dormir(Esperar 60sg)"){
         sh "sleep 60 && curl -X GET 'http://localhost:8081/rest/mscovid/test?msg=testing'"
     }
 }
