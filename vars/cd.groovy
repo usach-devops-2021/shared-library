@@ -40,6 +40,8 @@ def sGitDiff() {
 stage("Paso 7: Git Diff"){
     def branch = env.GIT_BRANCH
       env.STAGE = env.STAGE_NAME
+      sh "git checkout main && git pull origin main"
+      sh "git checkout ${branch}"
       sh "echo 'DIFERENCIAS ${branch} VS MAIN:'"
       sh "git diff ${branch}..main"
   }
