@@ -59,10 +59,10 @@ def call(){
         }
         post {
             success{
-                slackSend color: 'good', teamDomain: 'dipdevopsusac-tr94431', channel: "#lab-pipeline-mod3-seccion3-status", message: "[Grupo3][${env.tipoPipeline}][Rama: ${env.GIT_BRANCH}][Stage: ${env.STAGE}][Resultado: OK]"
+                slackSend color: 'good', teamDomain: 'dipdevopsusac-tr94431', channel: "#grupo-3-seccion-3", message: "[Grupo3][${env.tipoPipeline}][Rama: ${env.GIT_BRANCH}][Stage: ${env.STAGE}][Resultado: OK]"
             }
             failure{
-                slackSend color: 'danger', teamDomain: 'dipdevopsusac-tr94431', channel: "#lab-pipeline-mod3-seccion3-status", message: "[Grupo3][${env.tipoPipeline}][Rama: ${env.GIT_BRANCH}][Stage: ${env.STAGE}][Resultado: No OK]"
+                slackSend color: 'danger', teamDomain: 'dipdevopsusac-tr94431', channel: "#grupo-3-seccion-3", message: "[Grupo3][${env.tipoPipeline}][Rama: ${env.GIT_BRANCH}][Stage: ${env.STAGE}][Resultado: No OK]"
             }
         }
     }
