@@ -31,6 +31,7 @@ def call(){
                 steps {
                     script{
                     env.STAGE  = env.STAGE_NAME
+                    env.tipoPipeline = "";
                     //print 'Compile Tool: ' + params.compileTool;
                         if (fileExists('build.gradle')) {
                             sh "echo 'App Gradle'"
@@ -46,8 +47,10 @@ def call(){
                         def branch = env.GIT_BRANCH;
 
                         if (branch.startsWith('feature-') || branch == 'develop') {
+                            env.tipoPipeline = "CI";
                             ci.call(env.stages, env.compileTool)
                         } else if (branch.startWith('release-v')) {
+                            env.tipoPipeline = "CD";
                             cd.call(env.stages, env.compileTool)
                         }
                     }
@@ -56,10 +59,10 @@ def call(){
         }
         post {
             success{
-                slackSend color: 'good', message: "[Grupo 3][${JOB_NAME}][${params.compileTool}] Ejecución Exitosa.", teamDomain: 'dipdevopsusac-tr94431', tokenCredentialId: 'slack_token'
+                slackSend color: 'good', teamDomain: 'dipdevopsusac-tr94431', channel: "#lab-pipeline-mod3-seccion3-status", message: "[Grupo3][${env.tipoPipeline}][Rama: ${env.GIT_BRANCH}][Stage: ${env.STAGE}][Resultado: OK]"
             }
             failure{
-                slackSend color: 'danger', message: "[Grupo 3][${JOB_NAME}][${params.compileTool}] Ejecucion fallida en stage [${env.STAGE}]", teamDomain: 'dipdevopsusac-tr94431', tokenCredentialId: 'slack_token'
+                slackSend color: 'danger', teamDomain: 'dipdevopsusac-tr94431', channel: "#lab-pipeline-mod3-seccion3-status", message: "[Grupo3][${env.tipoPipeline}][Rama: ${env.GIT_BRANCH}][Stage: ${env.STAGE}][Resultado: No OK]"
             }
         }
     }
