@@ -67,9 +67,9 @@ def sRun() {
 
 def sTest() {
 
-  stage("Paso 10: Testear Artefacto - Dormir(Esperar 20sg) "){
+  stage("Paso 10: Testear Artefacto - Dormir(Esperar 60sg) "){
       env.STAGE = env.STAGE_NAME
-      sh "sleep 20 && curl -X GET 'http://localhost:8081/rest/mscovid/test?msg=testing'"
+      sh "sleep 60 && curl -X GET 'http://localhost:8081/rest/mscovid/test?msg=testing'"
   }
 
 }
