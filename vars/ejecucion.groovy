@@ -47,10 +47,10 @@ def call(){
                         def branch = env.GIT_BRANCH;
 
                         if (branch.startsWith('feature-') || branch == 'develop') {
-                            env.tipoPipeline = "CI";
+                            env.tipoPipeline = "CI"
                             ci.call(env.stages, env.compileTool)
-                        } else if (branch.startWith('release-v')) {
-                            env.tipoPipeline = "CD";
+                        } else if (branch.startsWith('release-v')) {
+                            env.tipoPipeline = "CD"
                             cd.call(env.stages, env.compileTool)
                         }
                     }
