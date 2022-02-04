@@ -77,8 +77,8 @@ def sTest() {
 def sGitMergeMaster() {
 
 stage("Paso 11: Git Merge Master"){
+    env.STAGE = env.STAGE_NAME
     branch = env.GIT_BRANCH
-      env.STAGE = env.STAGE_NAME
       sh "git checkout main && git pull origin main"
       sh "git merge --no-ff --strategy=ours ${branch}"
       sh "git push origin main"
@@ -87,20 +87,20 @@ stage("Paso 11: Git Merge Master"){
 
 def sGitMergeDevelop() {
 stage("Paso 12: Git Merge Develop"){
+    env.STAGE = env.STAGE_NAME
     branch = env.GIT_BRANCH
-      env.STAGE = env.STAGE_NAME
-      sh "git checkout main && git pull origin main"
+      sh "git checkout develop && git pull origin develop"
       sh "git merge --no-ff --strategy=ours ${branch}"
-      sh "git push origin main"
+      sh "git push origin develop"
   }
 
 }
 
 def sGitTagMaster() {
 
-stage("Paso 13: Git Merge Develop"){
-    env = env.GIT_BRANCH
-      env.STAGE = env.STAGE_NAME
+stage("Paso 13: Git Tag Master"){
+    env.STAGE = env.STAGE_NAME
+    branch = env.GIT_BRANCH
       sh "git checkout main && git pull origin main"
       sh "git tag ${branch.substring(9)}"
       sh "git push origin ${branch.substring(9)}"
