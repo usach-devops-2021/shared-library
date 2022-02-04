@@ -80,7 +80,7 @@ stage("Paso 11: Git Merge Master"){
     branch = env.GIT_BRANCH
       env.STAGE = env.STAGE_NAME
       sh "git checkout main && git pull origin main"
-      sh "git merge --no-ff ${branch}"
+      sh "git merge --no-ff --strategy=ours ${branch}"
       sh "git push origin main"
   }
 }
@@ -90,7 +90,7 @@ stage("Paso 12: Git Merge Develop"){
     branch = env.GIT_BRANCH
       env.STAGE = env.STAGE_NAME
       sh "git checkout main && git pull origin main"
-      sh "git merge --no-ff ${branch}"
+      sh "git merge --no-ff --strategy=ours ${branch}"
       sh "git push origin main"
   }
 
