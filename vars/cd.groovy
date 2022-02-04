@@ -60,7 +60,7 @@ def sRun() {
 
   stage("Paso 9: Levantar Artefacto Jar"){
       env.STAGE = env.STAGE_NAME
-      sh 'java -jar DevOpsUsach2020-0.0.1.jar &'
+       sh 'nohup bash java -jar DevOpsUsach2020-0.0.1.jar & >/dev/null'
   }
 
 }
