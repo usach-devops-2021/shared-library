@@ -39,8 +39,8 @@ def allStages(){
 def sGitDiff() {
 stage("Paso 7: Git Diff"){
     def branch = env.GIT_BRANCH
-      env.TAREA = env.STAGE_NAME
-      sh "DIFERENCIAS ${branch} VS MAIN:"
+      env.STAGE = env.STAGE_NAME
+      sh "echo 'DIFERENCIAS ${branch} VS MAIN:'"
       sh "git diff ${branch}..main"
   }
 
@@ -48,7 +48,7 @@ stage("Paso 7: Git Diff"){
 
 def sNexusDownload() {
 stage("Paso 8: Descargar Nexus"){
-      env.TAREA = env.STAGE_NAME
+      env.STAGE = env.STAGE_NAME
       sh ' curl -X GET -u $NEXUS_USER:$NEXUS_PASSWORD "http://nexus:8081/repository/devops-usach-nexus/com/devopsusach2020/DevOpsUsach2020/0.0.1/DevOpsUsach2020-0.0.1.jar" -O'
   }
 
@@ -57,7 +57,7 @@ stage("Paso 8: Descargar Nexus"){
 def sRun() {
 
   stage("Paso 9: Levantar Artefacto Jar"){
-      env.TAREA = env.STAGE_NAME
+      env.STAGE = env.STAGE_NAME
       sh 'nohup bash java -jar DevOpsUsach2020-0.0.1.jar & >/dev/null'
   }
 
@@ -66,7 +66,7 @@ def sRun() {
 def sTest() {
 
   stage("Paso 10: Testear Artefacto - Dormir(Esperar 20sg) "){
-      env.TAREA = env.STAGE_NAME
+      env.STAGE = env.STAGE_NAME
       sh "sleep 20 && curl -X GET 'http://localhost:8081/rest/mscovid/test?msg=testing'"
   }
 
@@ -76,7 +76,7 @@ def sGitMergeMaster() {
 
 stage("Paso 11: Git Merge Master"){
     branch = env.GIT_BRANCH
-      env.TAREA = env.STAGE_NAME
+      env.STAGE = env.STAGE_NAME
       sh "git checkout main && git pull origin main"
       sh "git merge --no-ff ${branch}"
       sh "git push origin main"
@@ -86,7 +86,7 @@ stage("Paso 11: Git Merge Master"){
 def sGitMergeDevelop() {
 stage("Paso 12: Git Merge Develop"){
     branch = env.GIT_BRANCH
-      env.TAREA = env.STAGE_NAME
+      env.STAGE = env.STAGE_NAME
       sh "git checkout main && git pull origin main"
       sh "git merge --no-ff ${branch}"
       sh "git push origin main"
@@ -98,7 +98,7 @@ def sGitTagMaster() {
 
 stage("Paso 13: Git Merge Develop"){
     env = env.GIT_BRANCH
-      env.TAREA = env.STAGE_NAME
+      env.STAGE = env.STAGE_NAME
       sh "git checkout main && git pull origin main"
       sh "git tag ${branch.substring(9)}"
       sh "git push origin ${branch.substring(9)}"

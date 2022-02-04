@@ -36,7 +36,7 @@ def allStages(){
 
 def sCompile(){
     stage("Paso 1: Compliar"){
-      env.TAREA = env.STAGE_NAME
+      env.STAGE = env.STAGE_NAME
       sh "mvn clean compile -e"
   }
 
@@ -44,7 +44,7 @@ def sCompile(){
 
 def sUnitTest() {
 stage("Paso 2: Testear"){
-      env.TAREA = env.STAGE_NAME
+      env.STAGE = env.STAGE_NAME
       sh "mvn clean test -e"
   }
 
@@ -52,7 +52,7 @@ stage("Paso 2: Testear"){
 
 def sJar() {
 stage("Paso 3: Build .Jar"){
-      env.TAREA = env.STAGE_NAME
+      env.STAGE = env.STAGE_NAME
       sh "mvn clean package -e"
   }
 
@@ -60,7 +60,7 @@ stage("Paso 3: Build .Jar"){
 
 def sSonar() {
 stage("Paso 4: Sonar - Análisis Estático"){
-      env.TAREA = env.STAGE_NAME
+      env.STAGE = env.STAGE_NAME
       sh "echo 'Análisis Estático!'"
       withSonarQubeEnv('sonarqube') {
           sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=ejemplo-gradle -Dsonar.java.binaries=build'
@@ -71,7 +71,7 @@ stage("Paso 4: Sonar - Análisis Estático"){
 
 def sNexusUpload() {
 stage("Paso 6: Subir Nexus"){
-      env.TAREA = env.STAGE_NAME
+      env.STAGE = env.STAGE_NAME
       nexusPublisher nexusInstanceId: 'nexus',
       nexusRepositoryId: 'devops-usach-nexus',
       packages: [
@@ -96,7 +96,7 @@ stage("Paso 6: Subir Nexus"){
 
 def sGitCreateRelease() {
 stage("Paso 6: Release"){
-      env.TAREA = env.STAGE_NAME
+      env.STAGE = env.STAGE_NAME
       sh "git checkout develop && git pull origin develop"
       /*def ret = sh(script: 'git branch | grep -q "release-v2-0-0"; echo $?')
       sh "echo '$ret'"
