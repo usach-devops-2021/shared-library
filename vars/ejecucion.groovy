@@ -32,13 +32,10 @@ def call(){
                     script{
                     env.STAGE  = env.STAGE_NAME
                     env.tipoPipeline = "";
-                    //print 'Compile Tool: ' + params.compileTool;
                         if (fileExists('build.gradle')) {
                             sh "echo 'App Gradle'"
-                            //gradle.call(env.stages, env.compileTool)
                         } else if(fileExists('pom.xml'))  {
                             sh "echo 'App Maven'"
-                            //maven.call(env.stages, env.compileTool)
                         } else {
                             sh "echo 'App sin identificar'"
                             exit 0
