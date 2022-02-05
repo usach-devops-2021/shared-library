@@ -1,25 +1,66 @@
-/*
-    forma de invocación de método call:
-    def ejecucion = load 'script.groovy'
-    ejecucion.call()
-*/
-def call(){
-    stage("Paso 1: Gradle Build && Test"){
-        sh "gradle clean build"
-    }
-    stage("Paso 2: Sonar - Análisis Estático"){
-        sh "echo 'Análisis Estático!'"
-        withSonarQubeEnv('sonarqube') {
-            sh './gradlew sonarqube -Dsonar.projectKey=ejemplo-gradle -Dsonar.java.binaries=build'
+import utilities.*
+
+def call(stages){
+    def listStagesOrder = [
+        'build': 'sBuild',
+        'sonar': 'sSonar',
+        'curl_spring': 'sCurlSpring',
+        'upload_nexus': 'sUploadNexus',
+        'dowload_nexus': 'sDownloadNexus',
+        'run_artifact': 'sRunArtifact',
+        'test_artifact': 'sTestArtifact'
+    ]
+    def arrayUtils = new array.arrayExtentions();
+    def stagesArray = []
+        stagesArray = arrayUtils.searchKeyInArray(stages, ";", listStagesOrder)
+
+    if (stagesArray.isEmpty()) {
+        echo 'El pipeline se ejecutará completo'
+        allStages()
+    } else {
+        echo 'Stages a ejecutar :' + stages
+        stagesArray.each{ stageFunction ->//variable as param
+            echo 'Ejecutando ' + stageFunction
+            "${stageFunction}"()
         }
     }
-    stage("Paso 3: Curl Springboot Gradle sleep 20"){
-        sh "gradle bootRun&"
-        sh "sleep 20 && curl -X GET 'http://localhost:8081/rest/mscovid/test?msg=testing'"
+}
+
+def allStages(){
+    sBuild()
+    sSonar()
+    sCurlSpring()
+    sDownloadNexus()
+    sRunArtifact()
+    sTestArtifact()
+}
+
+def sBuild(){
+    stage("Gradle: Build and Test"){
+        sh "gradle clean build"
     }
-    stage("Paso 4: Subir Nexus"){
+}
+
+def sSonar(){
+    stage("Gradle: Sonar - Análisis Estático"){
+        sh "echo 'Análisis Estático!'"
+        withSonarQubeEnv('sonarqube') {
+            sh 'chmod +x gradlew && ./gradlew sonarqube -Dsonar.projectKey=ejemplo-gradle -Dsonar.java.binaries=build'
+        }
+    }
+}
+
+def sCurlSpring(){
+    stage("Gradle: Curl Springboot Gradle sleep 60"){
+        sh "gradle bootRun&"
+        sh "sleep 60 && curl -X GET 'http://localhost:8081/rest/mscovid/test?msg=testing'"
+    }
+}
+
+def sUploadNexus(){
+    stage("Gradle: Subir Nexus"){
         nexusPublisher nexusInstanceId: 'nexus',
-        nexusRepositoryId: 'devops-clases',
+        nexusRepositoryId: 'devops-usach-nexus',
         packages: [
             [$class: 'MavenPackage',
                 mavenAssetList: [
@@ -37,14 +78,24 @@ def call(){
             ]
         ]
     }
-    stage("Paso 5: Descargar Nexus"){
-        sh ' curl -X GET -u $NEXUS_USER:$NEXUS_PASSWORD "http://nexus:8081/repository/devops-clases/com/devopsusach2020/DevOpsUsach2020/0.0.1/DevOpsUsach2020-0.0.1.jar" -O'
-    }
-    stage("Paso 6: Levantar Artefacto Jar"){
-        sh 'nohup bash java -jar DevOpsUsach2020-0.0.1.jar & >/dev/null'
-    }
-    stage("Paso 7: Testear Artefacto - Dormir(Esperar 20sg) "){
-        sh "sleep 20 && curl -X GET 'http://localhost:8081/rest/mscovid/test?msg=testing'"
+}
+
+def sDownloadNexus(){
+    stage("Gradle: Descargar Nexus"){
+        sh ' curl -X GET -u $NEXUS_USER:$NEXUS_PASSWORD "http://nexus:8081/repository/devops-usach-nexus/com/devopsusach2020/DevOpsUsach2020/0.0.1/DevOpsUsach2020-0.0.1.jar" -O'
     }
 }
+
+def sRunArtifact(){
+    stage("Gradle: Levantar Artefacto Jar"){
+        sh 'nohup bash java -jar DevOpsUsach2020-0.0.1.jar & >/dev/null'
+    }
+}
+
+def sTestArtifact(){
+    stage("Gradle: Testear Artefacto - Dormir(Esperar 60sg)"){
+        sh "sleep 60 && curl -X GET 'http://localhost:8081/rest/mscovid/test?msg=testing'"
+    }
+}
+
 return this;

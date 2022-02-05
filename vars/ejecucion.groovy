@@ -1,71 +1,76 @@
-/*
-
-    forma de invocación de método call:
-
-    def ejecucion = load 'script.groovy'
-    ejecucion.call()
-
-*/
-
 def call(){
-  
-  pipeline {
-      agent any
-      environment {
+    pipeline {
+        agent any
+        environment {
           NEXUS_USER         = credentials('nexus_username')
           NEXUS_PASSWORD     = credentials('nexus_password')
           SLACK_TOKEN        = credentials('slack_token')
-      }
-      parameters {
-          choice  name: 'compileTool', choices: ['Gradle', 'Maven'], description: 'Seleccione el empaquetador maven/gradle'
-      }
-      stages {
-          stage("Pipeline"){
-              steps {
-                  script{
-                      // params.compileTool
-                      sh "env"
-                      switch(params.compileTool)
-                      {
-                          case 'Maven':
-                              echo "Maven"
-                            //   def ejecucion = load 'maven.groovy'
-                            //   ejecucion.call()
-                            maven.call()
-                          break;
-                          case 'Gradle':
-                            //   def ejecucion = load 'gradle.groovy'
-                            //   ejecucion.call()
-                            gradle.call()
-                          break;
-                      }
-                  }
-              }
-            //   post {
-            //       always {
-            //           sh "echo 'fase always executed post'"
-            //       }
+        }
 
-            //       success {
-            //           sh "echo 'fase success'"
-            //       }
+        triggers {
+            GenericTrigger(
+                genericVariables: [
+                [key: 'ref', value: '$.ref']
+                ],
+                genericRequestVariables: [
+                    [key: 'stages', regexpFilter: '']
+                ],
+                    causeString: 'Iniciado en $env.GIT_BRANCH',
+                token: 'laboratorio-mod3',
+                tokenCredentialId: '',
+                printContributedVariables: true,
+                printPostContent: true,
+                silentResponse: false,
+                regexpFilterText: '$ref',
+                regexpFilterExpression: 'refs/heads/' + BRANCH_NAME
+            )
+        }
 
-            //       failure {
-            //           sh "echo 'fase failure'"
-            //       }
-            //   }
-             post{
-                success{
-                    slackSend color: 'good', message: "[rootchile] [${JOB_NAME}] [${BUILD_TAG}] Ejecucion Exitosa", teamDomain: 'dipdevopsusac-tr94431', tokenCredentialId: "${SLACK_TOKEN}"
-                }
-                failure{
-                    slackSend color: 'danger', message: "[rootchile] [${env.JOB_NAME}] [${BUILD_TAG}] Ejecucion fallida en stage", teamDomain: 'dipdevopsusac-tr94431', tokenCredentialId: "${SLACK_TOKEN}"
+        stages {
+            stage("Pipeline"){
+                steps {
+                    script{
+                    env.STAGE  = env.STAGE_NAME
+                    env.tipoPipeline = "";
+                        if (fileExists('build.gradle')) {
+                            sh "echo 'App Gradle'"
+                        } else if(fileExists('pom.xml'))  {
+                            sh "echo 'App Maven'"
+                        } else {
+                            sh "echo 'App sin identificar'"
+                            exit 0
+                        }
+
+                        if (fileExists('README.md')) {
+                            echo "sh 'Arcchivo README encontrado'"
+                        }
+
+                        if (fileExists('.gitignore')) {
+                            echo "sh '.gitignore encontrado'"
+                        }
+
+                        def branch = env.GIT_BRANCH;
+
+                        if (branch.startsWith('feature-') || branch == 'develop') {
+                            env.tipoPipeline = "CI"
+                            ci.call(env.stages, env.compileTool)
+                        } else if (branch.startsWith('release-v')) {
+                            env.tipoPipeline = "CD"
+                            cd.call(env.stages, env.compileTool)
+                        }
+                    }
                 }
             }
-          }
-      }
-  }
-
+        }
+        post {
+            success{
+                slackSend color: 'good', teamDomain: 'dipdevopsusac-tr94431', channel: "#lab-pipeline-mod3-seccion3-status", message: "[Grupo3][${env.tipoPipeline}][Rama: ${env.GIT_BRANCH}][Stage: ${env.STAGE}][Resultado: OK]"
+            }
+            failure{
+                slackSend color: 'danger', teamDomain: 'dipdevopsusac-tr94431', channel: "#lab-pipeline-mod3-seccion3-status", message: "[Grupo3][${env.tipoPipeline}][Rama: ${env.GIT_BRANCH}][Stage: ${env.STAGE}][Resultado: No OK]"
+            }
+        }
+    }
 }
 
 return this;
