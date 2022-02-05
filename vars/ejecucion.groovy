@@ -41,6 +41,14 @@ def call(){
                             exit 0
                         }
 
+                        if (fileExists('README.md')) {
+                            echo "sh 'Arcchivo README encontrado'"
+                        }
+
+                        if (fileExists('.gitignore')) {
+                            echo "sh '.gitignore encontrado'"
+                        }
+
                         def branch = env.GIT_BRANCH;
 
                         if (branch.startsWith('feature-') || branch == 'develop') {
