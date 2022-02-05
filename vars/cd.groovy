@@ -37,7 +37,7 @@ def allStages(){
 }
 
 def sGitDiff() {
-stage("Paso 7: Git Diff"){
+stage("Git Diff"){
     def branch = env.GIT_BRANCH
       env.STAGE = env.STAGE_NAME
       sh "git checkout main && git pull origin main"
@@ -49,7 +49,7 @@ stage("Paso 7: Git Diff"){
 }
 
 def sNexusDownload() {
-stage("Paso 8: Descargar Nexus"){
+stage("Descargar Nexus"){
       env.STAGE = env.STAGE_NAME
       sh ' curl -X GET -u $NEXUS_USER:$NEXUS_PASSWORD "http://nexus:8081/repository/devops-usach-nexus/com/devopsusach2020/DevOpsUsach2020/0.0.1/DevOpsUsach2020-0.0.1.jar" -O'
   }
@@ -58,7 +58,7 @@ stage("Paso 8: Descargar Nexus"){
 
 def sRun() {
 
-  stage("Paso 9: Levantar Artefacto Jar"){
+  stage("Levantar Artefacto Jar"){
       env.STAGE = env.STAGE_NAME
        sh 'java -jar DevOpsUsach2020-0.0.1.jar &'
   }
@@ -67,7 +67,7 @@ def sRun() {
 
 def sTest() {
 
-  stage("Paso 10: Testear Artefacto - Dormir(Esperar 20sg) "){
+  stage("Test Artefacto - Dormir(Esperar 20sg) "){
       env.STAGE = env.STAGE_NAME
       sh "sleep 20 && curl -X GET 'http://localhost:8081/rest/mscovid/test?msg=testing'"
   }
@@ -76,7 +76,7 @@ def sTest() {
 
 def sGitMergeMaster() {
 
-stage("Paso 11: Git Merge Master"){
+stage("Git Merge Master"){
     env.STAGE = env.STAGE_NAME
     branch = env.GIT_BRANCH
       sh "git checkout main && git pull origin main"
@@ -86,7 +86,7 @@ stage("Paso 11: Git Merge Master"){
 }
 
 def sGitMergeDevelop() {
-stage("Paso 12: Git Merge Develop"){
+stage("Git Merge Develop"){
     env.STAGE = env.STAGE_NAME
     branch = env.GIT_BRANCH
       sh "git checkout develop && git pull origin develop"
@@ -98,7 +98,7 @@ stage("Paso 12: Git Merge Develop"){
 
 def sGitTagMaster() {
 
-stage("Paso 13: Git Tag Master"){
+stage("Git Tag Master"){
     env.STAGE = env.STAGE_NAME
     branch = env.GIT_BRANCH
       sh "git checkout main && git pull origin main"
