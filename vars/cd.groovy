@@ -51,7 +51,7 @@ stage("Git Diff"){
 def sNexusDownload() {
 stage("Descargar Nexus"){
       env.STAGE = env.STAGE_NAME
-      sh ' curl -X GET -u $NEXUS_USER:$NEXUS_PASSWORD "http://nexus:8081/repository/devops-usach-nexus/com/devopsusach2020/DevOpsUsach2020/0.0.1/DevOpsUsach2020-0.0.1.jar" -O'
+      sh ' curl -X GET -u $NEXUS_USER:$NEXUS_PASSWORD "http://nexus:8081/repository/devops-usach-nexus/com/devopsusach2020/DevOpsUsach2020/2.0.0/DevOpsUsach2020-2.0.0.jar" -O'
   }
 
 }
@@ -60,7 +60,7 @@ def sRun() {
 
   stage("Levantar Artefacto Jar"){
       env.STAGE = env.STAGE_NAME
-       sh 'java -jar DevOpsUsach2020-0.0.1.jar &'
+       sh 'java -jar DevOpsUsach2020-2.0.0.jar &'
   }
 
 }
