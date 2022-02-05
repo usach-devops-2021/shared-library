@@ -80,6 +80,7 @@ stage("Git Merge Master"){
     env.STAGE = env.STAGE_NAME
     branch = env.GIT_BRANCH
       sh "git checkout main && git pull origin main"
+      //Se realiza Merge con estrategia Ours para que, a nivel práctico, pase sin conflictos, ya que el merge origina está con conflictos, lo que hace que no pase el build completo
       sh "git merge --no-ff --strategy=ours ${branch}"
       sh "git push origin main"
   }
@@ -90,6 +91,7 @@ stage("Git Merge Develop"){
     env.STAGE = env.STAGE_NAME
     branch = env.GIT_BRANCH
       sh "git checkout develop && git pull origin develop"
+      //Se realiza Merge con estrategia Ours para que, a nivel práctico, pase sin conflictos, ya que el merge origina está con conflictos, lo que hace que no pase el build completo
       sh "git merge --no-ff --strategy=ours ${branch}"
       sh "git push origin develop"
   }
