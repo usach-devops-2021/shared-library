@@ -80,7 +80,7 @@ stage("Subir Nexus"){
               mavenAssetList: [
                   [classifier: '',
                   extension: 'jar',
-                  filePath: 'build/DevOpsUsach2020-2.0.0.jar'
+                  filePath: 'build/DevOpsUsach2020-0.0.1.jar'
               ]
           ],
               mavenCoordinate: [
