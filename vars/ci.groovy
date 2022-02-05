@@ -61,9 +61,10 @@ stage("Build .Jar"){
 def sSonar() {
 stage("Sonar - Análisis Estático"){
       env.STAGE = env.STAGE_NAME
+      GIT_REPO_NAME = env.GIT_URL.replaceFirst(/^.*\/([^\/]+?).git$/, '$1')
       sh "echo 'Análisis Estático!'"
       withSonarQubeEnv('sonarqube') {
-          sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=ejemplo-gradle -Dsonar.java.binaries=build'
+          sh "mvn clean verify sonar:sonar -Dsonar.projectKey=${GIT_REPO_NAME}-${env.GIT_BRANCH}-${env.BUILD_NUMBER} -Dsonar.java.binaries=build"
       }
   }
 
