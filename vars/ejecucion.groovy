@@ -42,7 +42,7 @@ def call(){
                         }
 
                         if (fileExists('README.md')) {
-                            echo "sh 'Arcchivo README encontrado'"
+                            echo "sh 'Archivo README encontrado'"
                         }
 
                         if (fileExists('.gitignore')) {
